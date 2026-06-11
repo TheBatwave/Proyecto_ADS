@@ -42,6 +42,11 @@ function productosAprobados() {
 
 // ---- Construir página por categorías ----
 function init() {
+  // 🌱 Forzamos la siembra automática si el almacenamiento está vacío    
+  if (typeof productos !== 'undefined' && window.StorageService) {
+    StorageService.inicializarBaseDeDatos(productos);
+  }
+
   filtroTipoSubasta = "todos";
   renderizarFiltros();
   renderizarCategorias();
