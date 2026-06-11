@@ -1,64 +1,44 @@
 // ============================================================
-// admin.js — Panel administración SubastaNet
+// admin.js — Panel administración SubastaNet (Refactorizado)
 // ============================================================
 
-const STORAGE_KEY = "estadosProductos";
-const BANEO_KEY   = "productosBaneados";
-
 const ORDEN_CATEGORIAS = [
-  "Inmuebles","Vehículos","Electrónicos","Arte Coleccionable",
-  "Ropa y Accesorios","Artículos Deportivos","Libros","Juguetes"
+  "Inmuebles", "Vehículos", "Electrónicos", "Arte Coleccionable",
+  "Ropa y Accesorios", "Artículos Deportivos", "Libros", "Juguetes"
 ];
 
 const ICONOS_CAT = {
-  "Inmuebles":"","Vehículos":"","Electrónicos":"",
-  "Arte Coleccionable":"","Ropa y Accesorios":"",
-  "Artículos Deportivos":"","Libros":"","Juguetes":""
+  "Inmuebles": "🏠", "Vehículos": "🚗", "Electrónicos": "💻",
+  "Arte Coleccionable": "🎨", "Ropa y Accesorios": "👗",
+  "Artículos Deportivos": "⚽", "Libros": "📚", "Juguetes": "🧸"
 };
 
-// ---- Estados ----
-function getEstados() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
-}
-function setEstado(id, estado) {
-  const e = getEstados(); e[id] = estado;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(e));
-}
-function estadoActual(id) { return getEstados()[id] || "pendiente"; }
-
-// ---- Baneo ----
-function getBaneados() {
-  try { return JSON.parse(localStorage.getItem(BANEO_KEY)) || {}; } catch { return {}; }
-}
-function estaBaneado(id) { return !!getBaneados()[id]; }
-function toggleBaneo(id) {
-  const b = getBaneados();
-  if (b[id]) delete b[id]; else b[id] = true;
-  localStorage.setItem(BANEO_KEY, JSON.stringify(b));
-  renderizar();
+// ---- Estado Actual del Producto (Llamada al Servicio) ----
+function estadoActual(id) { 
+  return StorageService.obtenerEstados()[id] || "pendiente"; 
 }
 
-// ---- Crear card ----
+// ---- Crear Tarjeta de Producto (Card) ----
 function crearCard(p) {
   const estado  = estadoActual(p.id);
-  const baneado = estaBaneado(p.id);
+  const baneado = StorageService.estaProductoBaneado(p.id);
 
-  // Botones de acción según estado
+  // Determinar botones de acción según el estado en el que se encuentre el producto
   let botones = "";
   if (estado === "pendiente") {
-    botones = `<button class="btn-aprobar"  onclick="aprobar(${p.id})"> Aprobar</button>
-               <button class="btn-rechazar" onclick="rechazar(${p.id})"> Rechazar</button>`;
+    botones = `<button class="btn-aprobar"  onclick="aprobar(${p.id})">Aprobar</button>
+               <button class="btn-rechazar" onclick="rechazar(${p.id})">Rechazar</button>`;
   } else if (estado === "aprobado") {
-    botones = `<button class="btn-rechazar" onclick="rechazar(${p.id})"> Rechazar</button>
+    botones = `<button class="btn-rechazar" onclick="rechazar(${p.id})">Rechazar</button>
                <button class="btn-revertir" onclick="revertir(${p.id})">↩ Pendiente</button>`;
   } else {
-    botones = `<button class="btn-aprobar"  onclick="aprobar(${p.id})"> Aprobar</button>
+    botones = `<button class="btn-aprobar"  onclick="aprobar(${p.id})">Aprobar</button>
                <button class="btn-revertir" onclick="revertir(${p.id})">↩ Pendiente</button>`;
   }
 
-  // Baneo en aprobados y pendientes (no en rechazados)
+  // El botón de baneo solo se muestra si el producto está aprobado o pendiente
   const btnBaneo = (estado === "aprobado" || estado === "pendiente")
-    ? `<button class="btn-baneo" onclick="toggleBaneo(${p.id})">
+    ? `<button class="btn-baneo" onclick="alternarBaneo(${p.id})">
          ${baneado ? "🔓 Quitar baneo" : "🚫 Banear"}
        </button>`
     : "";
@@ -84,7 +64,7 @@ function crearCard(p) {
   return card;
 }
 
-// ---- Renderizar sección con categorías ----
+// ---- Renderizar sección por categorías ----
 function renderizarSeccion(contenedorEl, lista) {
   contenedorEl.innerHTML = "";
 
@@ -116,7 +96,7 @@ function renderizarSeccion(contenedorEl, lista) {
   });
 }
 
-// ---- Renderizar todo ----
+// ---- Renderizar la interfaz completa ----
 function renderizar() {
   const pend = productos.filter(p => estadoActual(p.id) === "pendiente");
   const apro = productos.filter(p => estadoActual(p.id) === "aprobado");
@@ -131,9 +111,12 @@ function renderizar() {
   document.getElementById("cnt-rechazados").textContent = rech.length;
 }
 
-function aprobar(id)  { setEstado(id, "aprobado");  renderizar(); }
-function rechazar(id) { setEstado(id, "rechazado"); renderizar(); }
-function revertir(id) { setEstado(id, "pendiente"); renderizar(); }
+// ---- Eventos de Control conectados al Servicio de Almacenamiento ----
+function aprobar(id)   { StorageService.actualizarEstadoProducto(id, "aprobado");  renderizar(); }
+function jsonRechazar(id) { StorageService.actualizarEstadoProducto(id, "rechazado"); renderizar(); } // alias interno
+function rechazar(id) { StorageService.actualizarEstadoProducto(id, "rechazado"); renderizar(); }
+function revertir(id) { StorageService.actualizarEstadoProducto(id, "pendiente"); renderizar(); }
+function alternarBaneo(id) { StorageService.conmutarBaneoProducto(id); renderizar(); }
 
 function cambiarTab(nombre) {
   document.querySelectorAll(".tab-btn").forEach((btn, i) => {
@@ -144,4 +127,5 @@ function cambiarTab(nombre) {
   });
 }
 
+// Arrancar la vista
 renderizar();

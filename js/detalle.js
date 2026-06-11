@@ -29,7 +29,21 @@ function init() {
     return;
   }
 
-  // Breadcrumb
+  // 🛡️ VALIDACIÓN DE SEGURIDAD DE ADS:
+  // Si el producto no está aprobado o está baneado en el StorageService,
+  // bloqueamos el acceso al detalle de forma dinámica.
+  if (window.StorageService) {
+    const estados = StorageService.obtenerEstados();
+    const estado = estados[p.id] || "pendiente";
+    const baneado = StorageService.estaProductoBaneado(p.id);
+
+    if (estado !== "aprobado" || baneado) {
+      mostrarError("Este producto no está disponible para subasta en este momento o ha sido retirado.");
+      return;
+    }
+  }
+
+  // Si pasa la validación, construimos el Breadcrumb de forma normal
   document.getElementById("breadcrumb").innerHTML = `
     <a href="subasta.html">Inicio</a>
     <span>›</span>
