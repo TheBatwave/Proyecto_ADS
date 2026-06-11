@@ -1,21 +1,29 @@
-// Mostrar contraseña
-const mostrarPassword =
-    document.getElementById("mostrarPassword");
+// cambiar a login
+function irLogin(){
+    document.getElementById("inicio").style.display = "none";
+    document.getElementById("login").style.display = "block";
+}
 
-const password =
-    document.getElementById("password");
+// mostrar contraseña
+function activarPassword(){
 
-mostrarPassword.addEventListener("click", () => {
+    const eye = document.getElementById("mostrarPassword");
+    const pass = document.getElementById("password");
 
-    if(password.type === "password"){
-        password.type = "text";
-    }else{
-        password.type = "password";
-    }
+    if(!eye || !pass) return;
 
-});
+    eye.addEventListener("click", () => {
 
-// Login administrador
+        pass.type =
+            pass.type === "password"
+            ? "text"
+            : "password";
+
+    });
+
+}
+
+// login admin
 function loginAdmin(){
 
     let correo =
@@ -24,7 +32,6 @@ function loginAdmin(){
     let pass =
         document.getElementById("password").value;
 
-    // Credenciales admin
     if(
         correo === "admin.central@subastanet.com"
         &&
@@ -40,3 +47,6 @@ function loginAdmin(){
     }
 
 }
+
+// activar cuando carga página
+window.onload = activarPassword;

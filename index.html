@@ -6,97 +6,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SUBASTA</title>
 
-    <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/72de7666a8.js" crossorigin="anonymous"></script>
 
-    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
-    <div class="main-container">
+<div class="main-container">
 
-        <div class="container">
+    <div class="container">
 
-            <!-- Encabezado -->
-            <div class="nav-like">
+        <!-- ENCABEZADO -->
+        <div class="nav-like">
 
-                <div class="title"></div>
-
-                <div class="logo">
-                    <img class="main-logo"
-                        src="https://cdn-icons-png.flaticon.com/512/783/783247.png"
-                        alt="logo">
-                </div>
-
+            <div class="logo">
+                <img class="main-logo"
+                    src="https://cdn-icons-png.flaticon.com/512/783/783247.png"
+                    alt="logo">
             </div>
 
-            <!-- Formulario -->
-            <div class="parent">
+        </div>
 
-                <div class="form-login">
+        <!-- 🔥 PANTALLA INICIAL (MANTIENE TU ESTILO SIMPLE) -->
+        <div id="inicio">
 
-                    <div class="sub-title">
+            <div class="sub-title">
 
-                        <h5>Login de Subasta</h5>
+                <h5>Casa de SUBASTA</h5>
 
-                        <!-- Visitante -->
-                        <div class="visitante-container">
-                            <a class="visitante-link" href="subasta.html">
-                                Entrar como visitante
-                            </a>
-                        </div>
+                <div class="visitante-container">
 
-                    </div>
-
-                    <!-- Inputs -->
-                    <div class="input-fields">
-
-                        <div class="input-group">
-                            <i class="fas fa-user"></i>
-                            <input type="email" id="correo"
-                                placeholder="Correo electrónico">
-                        </div>
-
-                        <div class="input-group password-group">
-                            <i class="fas fa-lock"></i>
-
-                            <input type="password" id="password"
-                                placeholder="Contraseña">
-
-                            <!-- Mostrar contraseña -->
-                            <i class="fas fa-eye"
-                                id="mostrarPassword"
-                                style="cursor:pointer;"></i>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Checkbox -->
-                    <div class="keep">
-                        <input class="checkbox"
-                            type="checkbox"
-                            id="mantener-sesion">
-
-                        <label for="mantener-sesion">
-                            Mantener sesión iniciada
-                        </label>
-                    </div>
-
-                    <!-- Botón -->
-                    <button onclick="loginAdmin()">
+                    <button onclick="irLogin()">
                         Iniciar sesión
                     </button>
 
-                    <!-- Links -->
-                    <div class="forget">
-                        <a href="">¿Olvidaste el usuario?</a>
-                        <p>o</p>
-                        <a href="">¿Olvidaste la contraseña?</a>
-                    </div>
+                    <button onclick="window.location.href='subasta.html'">
+                        Entrar como visitante
+                    </button>
 
                 </div>
 
@@ -104,51 +51,122 @@
 
         </div>
 
+        <!-- 🔐 TU LOGIN ORIGINAL (OCULTO) -->
+        <div class="parent" id="login" style="display:none;">
+
+            <div class="form-login">
+
+                <div class="sub-title">
+                    <h5>SUBASTA</h5>
+                </div>
+
+                <!-- Inputs -->
+                <div class="input-fields">
+
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="email" id="correo"
+                            placeholder="Correo electrónico">
+                    </div>
+
+                    <div class="input-group password-group">
+
+                        <i class="fas fa-lock"></i>
+
+                        <input type="password" id="password"
+                            placeholder="Contraseña">
+
+                        <i class="fas fa-eye"
+                            id="mostrarPassword"
+                            style="cursor:pointer;"></i>
+
+                    </div>
+
+                </div>
+
+                <!-- Checkbox -->
+                <div class="keep">
+
+                    <input class="checkbox"
+                        type="checkbox"
+                        id="mantener-sesion">
+
+                    <label for="mantener-sesion">
+                        Mantener sesión iniciada
+                    </label>
+
+                </div>
+
+                <!-- Botón -->
+                <button onclick="loginAdmin()">
+                    Iniciar sesión
+                </button>
+
+                <!-- Links -->
+                <div class="forget">
+                    <a href="">¿Olvidaste el usuario y contraseña?</a>
+                    <p>o</p>
+                    <a href="">Regresar</a>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
-    <script src="script.js"></script>
+
+</div>
+
 <script>
 
-    // Mostrar contraseña
-    const mostrarPassword =
-        document.getElementById("mostrarPassword");
+// cambiar a login
+function irLogin(){
+    document.getElementById("inicio").style.display = "none";
+    document.getElementById("login").style.display = "block";
+}
 
-    const password =
-        document.getElementById("password");
+// mostrar contraseña 
+const mostrarPassword =
+    document.getElementById("mostrarPassword");
 
+const password =
+    document.getElementById("password");
+
+if(mostrarPassword){
     mostrarPassword.addEventListener("click", () => {
 
-        if(password.type === "password"){
-            password.type = "text";
-        }else{
-            password.type = "password";
-        }
+        password.type =
+            password.type === "password"
+            ? "text"
+            : "password";
 
     });
+}
 
-    // Login admin
-    function loginAdmin(){
+// login admin 
+function loginAdmin(){
 
-        let correo =
-            document.getElementById("correo").value;
+    let correo =
+        document.getElementById("correo").value;
 
-        let pass =
-            document.getElementById("password").value;
+    let pass =
+        document.getElementById("password").value;
 
-        if(
-            correo === "administrador001@asadmin.com"
-            &&
-            pass === "AdminSubasta2026"
-        ){
+    if(
+        correo === "admin.central@subastanet.com"
+        &&
+        pass === "SubastaAdmin2026"
+    ){
 
-            window.location.href = "admin.html";
+        window.location.href = "admin.html";
 
-        }else{
+    }else{
 
-            alert("Correo o contraseña incorrectos");
-
-        }
+        alert("Correo o contraseña incorrectos");
 
     }
+
+}
 
 </script>
 

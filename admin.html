@@ -1,19 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Panel Administrador</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SubastaNet — Panel Admin</title>
+  <link rel="stylesheet" href="admin.css">
 </head>
-
 <body>
 
-    <h1>Panel de Administrador</h1>
+<header class="admin-header">
+  <div class="admin-header-left">
+    <img src="https://cdn-icons-png.flaticon.com/512/783/783247.png" alt="logo">
+    <h1>Panel Administrador</h1>
+  </div>
+  <div class="admin-header-right">admin.central@subastanet.com</div>
+</header>
 
-    <p>Aquí puedes subir productos.</p>
+<div class="tabs">
+  <button class="tab-btn activo" onclick="cambiarTab('pendientes')">
+    ⏳ Pendientes <span class="tab-count" id="cnt-pendientes">0</span>
+  </button>
+  <button class="tab-btn" onclick="cambiarTab('aprobados')">
+    Aprobados <span class="tab-count" id="cnt-aprobados">0</span>
+  </button>
+  <button class="tab-btn" onclick="cambiarTab('rechazados')">
+    Rechazados <span class="tab-count" id="cnt-rechazados">0</span>
+  </button>
+</div>
 
-    <button>Agregar producto</button>
+<div class="tab-panel activo" id="panel-pendientes">
+  <div id="grid-pendientes"></div>
+</div>
+<div class="tab-panel" id="panel-aprobados">
+  <div id="grid-aprobados"></div>
+</div>
+<div class="tab-panel" id="panel-rechazados">
+  <div id="grid-rechazados"></div>
+</div>
 
+<script src="productos.js"></script>
+<script src="admin.js"></script>
 </body>
-
 </html>
