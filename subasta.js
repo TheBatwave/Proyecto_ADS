@@ -3,8 +3,6 @@
 // Solo muestra productos con estado "aprobado" en localStorage
 // ============================================================
 
-const STORAGE_KEY = "estadosProductos";
-
 const CATEGORIAS_INFO = [
   { nombre: "Inmuebles",            icono: "🏠" },
   { nombre: "Vehículos",            icono: "🚗" },
@@ -19,12 +17,6 @@ const CATEGORIAS_INFO = [
 const PRODUCTOS_POR_CATEGORIA = 4;
 let filtroTipoSubasta = "todos"; // "todos" | "Inglesa" | "Holandesa" | "Sellada"
 
-// ---- Leer estados del admin ----
-function getEstados() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-  } catch { return {}; }
-}
 
 // ---- Validar si una subasta sigue vigente ----
 function estaVigente(p) {
@@ -38,15 +30,14 @@ function estaVigente(p) {
 
 // ---- Solo productos aprobados, vigentes y no baneados ----
 function productosAprobados() {
-  const estados = getEstados();
-  let baneados = {};
-  try { baneados = JSON.parse(localStorage.getItem("productosBaneados")) || {}; } catch {}
+  const estados = StorageService.obtenerEstados();
+
   return productos.filter(p =>
-    estados[p.id] === "aprobado" &&
-    !baneados[p.id] &&
-    estaVigente(p) &&
-    (filtroTipoSubasta === "todos" || p.tipoSubasta.toLowerCase() === filtroTipoSubasta.toLowerCase())
-  );
+        estados[p.id] === "aprobado" &&
+        !StorageService.estaProductoBaneado(p.id) && // <--- Ahora usa el servicio
+        estaVigente(p) &&
+        (filtroTipoSubasta === "todos" || p.tipoSubasta.toLowerCase() === filtroTipoSubasta.toLowerCase())
+    );
 }
 
 // ---- Construir página por categorías ----
