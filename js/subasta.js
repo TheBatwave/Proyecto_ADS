@@ -41,15 +41,27 @@ function productosAprobados() {
 }
 
 // ---- Construir página por categorías ----
+// ---- Iniciar ----
 function init() {
-  // 🌱 Forzamos la siembra automática si el almacenamiento está vacío    
-  if (typeof productos !== 'undefined' && window.StorageService) {
-    StorageService.inicializarBaseDeDatos(productos);
-  }
+    // 🌱 Forzamos la siembra automática si el almacenamiento está vacío
+    if (typeof productos !== 'undefined' && window.StorageService) {
+        StorageService.inicializarBaseDeDatos(productos);
+    }
 
-  filtroTipoSubasta = "todos";
-  renderizarFiltros();
-  renderizarCategorias();
+    filtroTipoSubasta = "todos";
+    renderizarFiltros();
+
+    // 🔄 LÓGICA DE PERSISTENCIA CORREGIDA:
+    // Revisamos si venimos regresando de ver un detalle o si ya había una categoría activa
+    const categoriaGuardada = sessionStorage.getItem("categoriaActual");
+    
+    if (categoriaGuardada) {
+        // Si hay una guardada, renderizamos directamente esa categoría enfocada
+        filtrarCategoria(categoriaGuardada);
+    } else {
+        // Si no hay nada en sesión, muestra la vista general con todas las categorías
+        renderizarCategorias();
+    }
 }
 
 // ---- Renderizar filtros de tipo de subasta ----
@@ -141,6 +153,9 @@ function crearCard(p) {
 
 // ---- Ver todos de una categoría ----
 function filtrarCategoria(nombre) {
+  // 💾 Guardamos la categoría actual en la sesión para recordarla si va al detalle
+  sessionStorage.setItem("categoriaActual", nombre);
+
   const contenedor = document.getElementById("contenedorCategorias");
   contenedor.innerHTML = "";
 
@@ -152,7 +167,7 @@ function filtrarCategoria(nombre) {
   seccion.innerHTML = `
     <div class="cat-header">
       <h2 class="cat-titulo">${catInfo ? catInfo.icono : ""} ${nombre}</h2>
-      <button class="btn-ver-todos btn-volver" onclick="init()">← Volver</button>
+      <button class="btn-ver-todos btn-volver" onclick="sessionStorage.removeItem('categoriaActual'); init();">← Volver</button>
     </div>
     <div class="grid-productos" id="grid-filtro"></div>
   `;
@@ -251,11 +266,3 @@ document.addEventListener("keydown", e => {
 
 // ---- Iniciar ----
 init();
-// ---- Al cargar, revisar si hay categoría pendiente de sessionStorage ----
-(function revisarCategoriaPendiente() {
-  const cat = sessionStorage.getItem("volverCategoria");
-  if (cat) {
-    sessionStorage.removeItem("volverCategoria");
-    filtrarCategoria(cat);
-  }
-})();
