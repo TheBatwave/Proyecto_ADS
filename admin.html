@@ -21,13 +21,17 @@
     ⏳ Pendientes <span class="tab-count" id="cnt-pendientes">0</span>
   </button>
   <button class="tab-btn" onclick="cambiarTab('aprobados')">
-    Aprobados <span class="tab-count" id="cnt-aprobados">0</span>
+    ✅ Aprobados <span class="tab-count" id="cnt-aprobados">0</span>
   </button>
   <button class="tab-btn" onclick="cambiarTab('rechazados')">
-    Rechazados <span class="tab-count" id="cnt-rechazados">0</span>
+    ❌ Rechazados <span class="tab-count" id="cnt-rechazados">0</span>
+  </button>
+  <button class="tab-btn tab-btn-tiempo" onclick="cambiarTab('tiempo')">
+    🕐 Control de Tiempo
   </button>
 </div>
 
+<!-- PANELES PRODUCTOS -->
 <div class="tab-panel activo" id="panel-pendientes">
   <div id="grid-pendientes"></div>
 </div>
@@ -38,8 +42,52 @@
   <div id="grid-rechazados"></div>
 </div>
 
+<!-- PANEL CONTROL DE TIEMPO -->
+<div class="tab-panel" id="panel-tiempo">
+
+  <!-- RELOJ SIMULADO -->
+  <div class="tiempo-section">
+    <h2 class="tiempo-titulo">🕐 Reloj del Sistema</h2>
+    <div class="reloj-display">
+      <div class="reloj-real">
+        <span class="reloj-label">Hora real</span>
+        <span class="reloj-valor" id="relojReal">--</span>
+      </div>
+      <div class="reloj-sep">→</div>
+      <div class="reloj-simulado">
+        <span class="reloj-label">Hora simulada</span>
+        <span class="reloj-valor reloj-simulado-valor" id="relojSimulado">--</span>
+      </div>
+      <div class="offset-badge" id="offsetBadge">+0 días</div>
+    </div>
+
+    <!-- ADELANTAR TIEMPO GLOBAL -->
+    <div class="tiempo-controles">
+      <h3 class="controles-titulo">⚡ Adelantar tiempo global</h3>
+      <div class="btns-tiempo">
+        <button class="btn-tiempo" onclick="adelantar(30 * 60 * 1000)">+30 min</button>
+        <button class="btn-tiempo" onclick="adelantar(60 * 60 * 1000)">+1 hora</button>
+        <button class="btn-tiempo" onclick="adelantar(6 * 60 * 60 * 1000)">+6 horas</button>
+        <button class="btn-tiempo" onclick="adelantar(24 * 60 * 60 * 1000)">+1 día</button>
+        <button class="btn-tiempo" onclick="adelantar(7 * 24 * 60 * 60 * 1000)">+7 días</button>
+        <button class="btn-tiempo" onclick="adelantar(15 * 24 * 60 * 60 * 1000)">+15 días</button>
+        <button class="btn-tiempo" onclick="adelantar(30 * 24 * 60 * 60 * 1000)">+30 días</button>
+      </div>
+      <button class="btn-reset-tiempo" onclick="resetearTiempo()">🔄 Restaurar hora real</button>
+    </div>
+  </div>
+
+  <!-- EDITAR FECHAS POR PRODUCTO -->
+  <div class="tiempo-section">
+    <h2 class="tiempo-titulo">📅 Editar fechas por producto</h2>
+    <p class="tiempo-desc">Ajusta el inicio y cierre de cada subasta individualmente para tu demo.</p>
+    <div id="lista-fechas-productos"></div>
+  </div>
+
+</div>
+
 <script src="js/productos.js"></script>
-<script src="js/storageService.js"></script> 
+<script src="js/storageService.js"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>

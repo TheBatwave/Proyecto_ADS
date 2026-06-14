@@ -150,3 +150,135 @@ body { background: #f0f2f5; color: #1a1a2e; }
   background: #f8fafc; color: #475569; transition: .2s;
 }
 .btn-detalle:hover { background: #e2e8f0; color: #1a1a2e; }
+/* ============================================================
+   CONTROL DE TIEMPO — Estilos nuevos
+   ============================================================ */
+
+/* Tab especial de tiempo */
+.tab-btn-tiempo {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  margin-left: auto;
+}
+.tab-btn-tiempo.activo {
+  background: #fde68a !important;
+  color: #78350f !important;
+}
+
+/* Secciones del panel de tiempo */
+.tiempo-section {
+  max-width: 1400px; margin: 28px auto 0;
+  padding: 24px 30px;
+  background: white;
+  border-radius: 0 12px 12px 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  margin-bottom: 20px;
+}
+.tiempo-titulo {
+  font-size: 18px; font-weight: 800; color: #1a1a2e;
+  margin-bottom: 20px; padding-bottom: 10px;
+  border-bottom: 2px solid #f1f5f9;
+}
+.tiempo-desc { font-size: 13px; color: #6b7280; margin-bottom: 20px; }
+
+/* Reloj */
+.reloj-display {
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  background: #f8fafc; border: 1px solid #e2e8f0;
+  border-radius: 12px; padding: 20px 24px; margin-bottom: 24px;
+}
+.reloj-real, .reloj-simulado {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.reloj-label { font-size: 11px; color: #6b7280; font-weight: 700; text-transform: uppercase; }
+.reloj-valor {
+  font-size: 18px; font-weight: 800; color: #1a1a2e;
+  font-family: monospace;
+}
+.reloj-simulado-valor { color: #1a56db; }
+.reloj-sep { font-size: 28px; color: #cbd5e1; }
+.offset-badge {
+  background: #e2e8f0; color: #475569;
+  border-radius: 20px; padding: 5px 14px;
+  font-size: 12px; font-weight: 700;
+  margin-left: auto;
+}
+.offset-badge.offset-activo { background: #dbeafe; color: #1e40af; }
+
+/* Botones adelantar tiempo */
+.controles-titulo { font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 12px; }
+.btns-tiempo { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.btn-tiempo {
+  padding: 9px 18px; border: 1px solid #d1d5db;
+  border-radius: 8px; background: #f8fafc;
+  color: #1a1a2e; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: .2s; width: auto; margin-top: 0;
+}
+.btn-tiempo:hover { background: #1a56db; color: white; border-color: #1a56db; transform: translateY(-1px); }
+.btn-reset-tiempo {
+  padding: 9px 20px; background: #fee2e2; color: #991b1b;
+  border: 1px solid #fecaca; border-radius: 8px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: .2s; width: auto; margin-top: 0;
+}
+.btn-reset-tiempo:hover { background: #fecaca; }
+
+/* Tiempo en cards */
+.card-tiempo {
+  font-size: 11px; font-weight: 700; margin-bottom: 6px;
+  padding: 3px 8px; border-radius: 6px; display: inline-block;
+}
+.card-tiempo.vigente { background: #d1fae5; color: #065f46; }
+.card-tiempo.vencida { background: #fee2e2; color: #991b1b; }
+
+/* Panel fechas por producto */
+.fechas-seccion { margin-bottom: 24px; }
+.fechas-cat-titulo {
+  font-size: 15px; font-weight: 700; color: #1a1a2e;
+  margin-bottom: 10px; padding-bottom: 6px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.fecha-fila {
+  background: #f8fafc; border: 1px solid #e2e8f0;
+  border-radius: 10px; padding: 12px 16px;
+  margin-bottom: 8px; display: flex;
+  align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.fecha-fila-info {
+  display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 180px;
+}
+.fecha-fila-titulo { font-size: 13px; font-weight: 700; color: #1a1a2e; }
+.fecha-fila-estado { font-size: 11px; font-weight: 700; }
+.fecha-fila-estado.vigente { color: #065f46; }
+.fecha-fila-estado.vencida { color: #991b1b; }
+.badge-editado {
+  display: inline-block; background: #fef3c7; color: #92400e;
+  font-size: 10px; font-weight: 700; padding: 2px 8px;
+  border-radius: 20px; width: fit-content;
+}
+.fecha-fila-inputs {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.fecha-fila-inputs label {
+  display: flex; flex-direction: column; gap: 3px;
+  font-size: 11px; color: #6b7280; font-weight: 600;
+}
+.fecha-fila-inputs input[type="date"] {
+  border: 1px solid #d1d5db; border-radius: 6px;
+  padding: 5px 8px; font-size: 12px; color: #1a1a2e;
+  background: white;
+}
+.btn-guardar-fecha {
+  padding: 7px 14px; background: #1a56db; color: white;
+  border: none; border-radius: 8px; font-size: 12px;
+  font-weight: 700; cursor: pointer; width: auto; margin-top: 0;
+  transition: .2s; align-self: flex-end;
+}
+.btn-guardar-fecha:hover { background: #1245b5; }
+.btn-restaurar-fecha {
+  padding: 7px 14px; background: #f1f5f9; color: #475569;
+  border: 1px solid #e2e8f0; border-radius: 8px;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  width: auto; margin-top: 0; transition: .2s; align-self: flex-end;
+}
+.btn-restaurar-fecha:hover { background: #e2e8f0; }

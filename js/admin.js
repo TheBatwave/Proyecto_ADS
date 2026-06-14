@@ -1,5 +1,6 @@
 // ============================================================
-// admin.js — Panel administración SubastaNet (Refactorizado)
+// admin.js — Panel administración SubastaNet
+// Incluye: gestión de productos + Control de Tiempo
 // ============================================================
 
 const ORDEN_CATEGORIAS = [
@@ -13,17 +14,35 @@ const ICONOS_CAT = {
   "Artículos Deportivos": "⚽", "Libros": "📚", "Juguetes": "🧸"
 };
 
-// ---- Estado Actual del Producto (Llamada al Servicio) ----
-function estadoActual(id) { 
-  return StorageService.obtenerEstados()[id] || "pendiente"; 
+// ============================================================
+// GESTIÓN DE PRODUCTOS
+// ============================================================
+
+function estadoActual(id) {
+  return StorageService.obtenerEstados()[id] || "pendiente";
 }
 
-// ---- Crear Tarjeta de Producto (Card) ----
 function crearCard(p) {
   const estado  = estadoActual(p.id);
   const baneado = StorageService.estaProductoBaneado(p.id);
 
-  // Determinar botones de acción según el estado en el que se encuentre el producto
+  // Calcular tiempo restante con hora simulada
+  const ahora        = StorageService.ahora();
+  const fechaFin     = StorageService.fechaFinEfectiva(p);
+  const fechaInicio  = StorageService.fechaInicioEfectiva(p);
+  let tiempoHTML     = "";
+
+  if (fechaFin) {
+    const fin  = new Date(fechaFin);
+    fin.setHours(23, 59, 59, 999);
+    const diff = fin - ahora;
+    if (diff < 0) {
+      tiempoHTML = `<p class="card-tiempo vencida">⏰ Subasta vencida</p>`;
+    } else {
+      tiempoHTML = `<p class="card-tiempo vigente">⏳ ${formatearTiempoRestante(diff)}</p>`;
+    }
+  }
+
   let botones = "";
   if (estado === "pendiente") {
     botones = `<button class="btn-aprobar"  onclick="aprobar(${p.id})">Aprobar</button>
@@ -36,7 +55,6 @@ function crearCard(p) {
                <button class="btn-revertir" onclick="revertir(${p.id})">↩ Pendiente</button>`;
   }
 
-  // El botón de baneo solo se muestra si el producto está aprobado o pendiente
   const btnBaneo = (estado === "aprobado" || estado === "pendiente")
     ? `<button class="btn-baneo" onclick="alternarBaneo(${p.id})">
          ${baneado ? "🔓 Quitar baneo" : "🚫 Banear"}
@@ -55,6 +73,7 @@ function crearCard(p) {
       <p class="admin-card-titulo">${p.titulo}</p>
       <p class="admin-card-cat">${p.condicion}</p>
       <p class="admin-card-precio">$${p.precioInicial.toLocaleString("es-MX")} MXN</p>
+      ${tiempoHTML}
       <div class="admin-acciones">${botones}</div>
       ${btnBaneo}
       <button class="btn-detalle" onclick="window.open('detalle.html?id=${p.id}','_blank')">
@@ -64,39 +83,31 @@ function crearCard(p) {
   return card;
 }
 
-// ---- Renderizar sección por categorías ----
 function renderizarSeccion(contenedorEl, lista) {
   contenedorEl.innerHTML = "";
-
   if (lista.length === 0) {
     contenedorEl.innerHTML = '<div class="empty-msg"><span>📭</span>Sin productos aquí</div>';
     return;
   }
-
   ORDEN_CATEGORIAS.forEach(cat => {
     const grupo = lista.filter(p => p.categoria === cat);
     if (grupo.length === 0) return;
-
     const seccion = document.createElement("div");
     seccion.className = "admin-seccion";
     seccion.innerHTML = `
       <div class="admin-cat-header">
         <div class="admin-cat-titulo">
-          <span>${ICONOS_CAT[cat] || ""}</span>
-          ${cat}
+          <span>${ICONOS_CAT[cat] || ""}</span>${cat}
         </div>
         <span class="admin-cat-badge">${grupo.length}</span>
       </div>
-      <div class="admin-grid" id="grid-${cat.replace(/\s+/g,'_')}"></div>
-    `;
+      <div class="admin-grid" id="grid-${cat.replace(/\s+/g,'_')}"></div>`;
     contenedorEl.appendChild(seccion);
-
     const grid = seccion.querySelector(".admin-grid");
     grupo.forEach(p => grid.appendChild(crearCard(p)));
   });
 }
 
-// ---- Renderizar la interfaz completa ----
 function renderizar() {
   const pend = productos.filter(p => estadoActual(p.id) === "pendiente");
   const apro = productos.filter(p => estadoActual(p.id) === "aprobado");
@@ -111,21 +122,155 @@ function renderizar() {
   document.getElementById("cnt-rechazados").textContent = rech.length;
 }
 
-// ---- Eventos de Control conectados al Servicio de Almacenamiento ----
-function aprobar(id)   { StorageService.actualizarEstadoProducto(id, "aprobado");  renderizar(); }
-function jsonRechazar(id) { StorageService.actualizarEstadoProducto(id, "rechazado"); renderizar(); } // alias interno
+function aprobar(id)  { StorageService.actualizarEstadoProducto(id, "aprobado");  renderizar(); }
 function rechazar(id) { StorageService.actualizarEstadoProducto(id, "rechazado"); renderizar(); }
 function revertir(id) { StorageService.actualizarEstadoProducto(id, "pendiente"); renderizar(); }
 function alternarBaneo(id) { StorageService.conmutarBaneoProducto(id); renderizar(); }
 
 function cambiarTab(nombre) {
+  const nombres = ["pendientes", "aprobados", "rechazados", "tiempo"];
   document.querySelectorAll(".tab-btn").forEach((btn, i) => {
-    btn.classList.toggle("activo", ["pendientes","aprobados","rechazados"][i] === nombre);
+    btn.classList.toggle("activo", nombres[i] === nombre);
   });
   document.querySelectorAll(".tab-panel").forEach(panel => {
     panel.classList.toggle("activo", panel.id === "panel-" + nombre);
   });
+  if (nombre === "tiempo") renderizarPanelTiempo();
 }
 
-// Arrancar la vista
+// ============================================================
+// CONTROL DE TIEMPO
+// ============================================================
+
+function formatearFecha(date) {
+  return date.toLocaleString("es-MX", {
+    day: "2-digit", month: "2-digit", year: "numeric",
+    hour: "2-digit", minute: "2-digit"
+  });
+}
+
+function formatearTiempoRestante(ms) {
+  if (ms <= 0) return "Vencida";
+  const dias  = Math.floor(ms / (1000 * 60 * 60 * 24));
+  const horas = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const mins  = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+  if (dias > 0)  return `${dias}d ${horas}h restantes`;
+  if (horas > 0) return `${horas}h ${mins}min restantes`;
+  return `${mins} min restantes`;
+}
+
+function actualizarReloj() {
+  const real     = new Date();
+  const simulada = StorageService.ahora();
+  const offset   = StorageService.obtenerOffset();
+
+  const elReal = document.getElementById("relojReal");
+  const elSim  = document.getElementById("relojSimulado");
+  const elBadge= document.getElementById("offsetBadge");
+
+  if (elReal)  elReal.textContent  = formatearFecha(real);
+  if (elSim)   elSim.textContent   = formatearFecha(simulada);
+  if (elBadge) {
+    const dias  = Math.floor(Math.abs(offset) / (1000 * 60 * 60 * 24));
+    const horas = Math.floor((Math.abs(offset) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const mins  = Math.floor((Math.abs(offset) % (1000 * 60 * 60)) / (1000 * 60));
+    let texto = offset === 0 ? "Tiempo real" : `+${dias > 0 ? dias + "d " : ""}${horas > 0 ? horas + "h " : ""}${mins}min adelantado`;
+    elBadge.textContent = texto;
+    elBadge.className = "offset-badge" + (offset > 0 ? " offset-activo" : "");
+  }
+}
+
+function adelantar(ms) {
+  StorageService.adelantarTiempo(ms);
+  actualizarReloj();
+  renderizar(); // refrescar cards con nuevo tiempo
+}
+
+function resetearTiempo() {
+  StorageService.resetearTiempo();
+  actualizarReloj();
+  renderizar();
+}
+
+// ---- Panel de fechas por producto ----
+function renderizarPanelTiempo() {
+  actualizarReloj();
+  const contenedor = document.getElementById("lista-fechas-productos");
+  if (!contenedor) return;
+
+  contenedor.innerHTML = "";
+
+  ORDEN_CATEGORIAS.forEach(cat => {
+    const grupo = productos.filter(p => p.categoria === cat);
+    if (grupo.length === 0) return;
+
+    const seccion = document.createElement("div");
+    seccion.className = "fechas-seccion";
+    seccion.innerHTML = `<h3 class="fechas-cat-titulo">${ICONOS_CAT[cat] || ""} ${cat}</h3>`;
+
+    grupo.forEach(p => {
+      const finEfectiva    = StorageService.fechaFinEfectiva(p)   || "";
+      const inicioEfectiva = StorageService.fechaInicioEfectiva(p) || "";
+      const editadas       = StorageService.obtenerFechasEditadas();
+      const tieneEdicion   = !!editadas[p.id];
+
+      const ahora  = StorageService.ahora();
+      const fin    = finEfectiva ? new Date(finEfectiva) : null;
+      if (fin) fin.setHours(23, 59, 59, 999);
+      const diff   = fin ? fin - ahora : null;
+      const vigente = diff !== null && diff > 0;
+
+      const fila = document.createElement("div");
+      fila.className = "fecha-fila";
+      fila.id = `fecha-fila-${p.id}`;
+      fila.innerHTML = `
+        <div class="fecha-fila-info">
+          <span class="fecha-fila-titulo">${p.titulo}</span>
+          <span class="fecha-fila-estado ${vigente ? 'vigente' : 'vencida'}">
+            ${vigente ? "⏳ " + formatearTiempoRestante(diff) : "⏰ Vencida"}
+          </span>
+          ${tieneEdicion ? '<span class="badge-editado">✏️ editada</span>' : ""}
+        </div>
+        <div class="fecha-fila-inputs">
+          <label>Inicio
+            <input type="date" id="inicio-${p.id}" value="${inicioEfectiva}">
+          </label>
+          <label>Cierre
+            <input type="date" id="fin-${p.id}" value="${finEfectiva}">
+          </label>
+          <button class="btn-guardar-fecha" onclick="guardarFechas(${p.id})">💾 Guardar</button>
+          ${tieneEdicion ? `<button class="btn-restaurar-fecha" onclick="restaurarFechas(${p.id})">↩ Original</button>` : ""}
+        </div>`;
+      seccion.appendChild(fila);
+    });
+
+    contenedor.appendChild(seccion);
+  });
+}
+
+function guardarFechas(id) {
+  const inicio = document.getElementById(`inicio-${id}`)?.value;
+  const fin    = document.getElementById(`fin-${id}`)?.value;
+  if (!fin) { alert("Por favor ingresa al menos una fecha de cierre."); return; }
+  StorageService.editarFechasProducto(id, inicio, fin);
+  renderizarPanelTiempo();
+  renderizar();
+}
+
+function restaurarFechas(id) {
+  StorageService.restaurarFechasProducto(id);
+  renderizarPanelTiempo();
+  renderizar();
+}
+
+// ---- Actualizar reloj cada segundo cuando está en la pestaña de tiempo ----
+setInterval(() => {
+  const panelTiempo = document.getElementById("panel-tiempo");
+  if (panelTiempo && panelTiempo.classList.contains("activo")) {
+    actualizarReloj();
+  }
+}, 1000);
+
+// ---- Arrancar ----
+StorageService.inicializarBaseDeDatos(productos);
 renderizar();
