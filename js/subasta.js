@@ -1,6 +1,6 @@
 // ============================================================
 // Vista visitante
-// Solo muestra productos con estado "aprobado" en localStorage
+// Solo muestra productos con estado "aprobado" (cargados desde MySQL)
 // ============================================================
 
 const CATEGORIAS_INFO = [
@@ -265,4 +265,5 @@ document.addEventListener("keydown", e => {
 });
 
 // ---- Iniciar ----
-init();
+// (El arranque lo dispara storageService.js cuando termina de cargar la BD,
+//  llamando a init() automáticamente.)

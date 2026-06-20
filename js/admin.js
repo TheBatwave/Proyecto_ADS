@@ -272,5 +272,7 @@ setInterval(() => {
 }, 1000);
 
 // ---- Arrancar ----
-StorageService.inicializarBaseDeDatos(productos);
-renderizar();
+// storageService.js llama a init() cuando termina de cargar la BD desde MySQL.
+function init() {
+  renderizar();
+}

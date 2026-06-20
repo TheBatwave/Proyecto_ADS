@@ -29,8 +29,8 @@ function inicializarManejadorPassword() {
     });
 }
 
-// Autenticación del Administrador Central
-function loginAdmin() {
+// Autenticación del Administrador Central (contra la base de datos MySQL)
+async function loginAdmin() {
     const correoInput = document.getElementById("correo");
     const passwordInput = document.getElementById("password");
 
@@ -39,14 +39,27 @@ function loginAdmin() {
     const correo = correoInput.value.trim();
     const pass = passwordInput.value;
 
-    // Credenciales de acceso del sistema
-    const ADMIN_EMAIL = "admin.central@subastanet.com";
-    const ADMIN_PASS = "SubastaAdmin2026";
+    if (!correo || !pass) {
+        alert("Por favor ingresa correo y contraseña.");
+        return;
+    }
 
-    if (correo === ADMIN_EMAIL && pass === ADMIN_PASS) {
-        window.location.href = "admin.html";
-    } else {
-        alert("El correo electrónico o la contraseña son incorrectos. Por favor, intente de nuevo.");
+    try {
+        const resp = await fetch("api/index.php?action=login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ correo: correo, password: pass })
+        });
+        const data = await resp.json();
+
+        if (data.ok) {
+            window.location.href = "admin.html";
+        } else {
+            alert("El correo electrónico o la contraseña son incorrectos. Por favor, intente de nuevo.");
+        }
+    } catch (e) {
+        console.error("Error al iniciar sesión:", e);
+        alert("No se pudo conectar con el servidor. Verifica que XAMPP (Apache + MySQL) esté encendido.");
     }
 }
 

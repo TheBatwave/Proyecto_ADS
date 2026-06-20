@@ -1,149 +1,133 @@
 // ============================================================
-// storageService.js — Capa de persistencia de datos (LocalStorage)
-// Versión con Control de Tiempo para Demo
+// storageService.js — Capa de persistencia (AHORA contra MySQL vía PHP)
+// Mantiene la MISMA interfaz que antes para no romper los controladores.
+// Los datos se cargan una vez con cargarTodo() y se cachean en memoria;
+// cada cambio (estado, baneo, fechas, tiempo) se guarda en la BD por fetch.
 // ============================================================
 
-const KEYS = {
-    ESTADOS:      "estadosProductos",
-    BANEADOS:     "productosBaneados",
-    INICIALIZADO: "subastaNet_inicializado",
-    OFFSET_TIEMPO:"subastaNet_offsetTiempo",   // ms adelantados globalmente
-    FECHAS:       "subastaNet_fechasEditadas"  // { id: { fechaInicio, fechaFin } }
-};
+const API = "api/index.php";
 
-// --- Funciones Internas de Lectura/Escritura ---
-function leerDeStorage(key) {
-    try {
-        return JSON.parse(localStorage.getItem(key)) || {};
-    } catch (error) {
-        console.error(`Error al leer la clave ${key}:`, error);
-        return {};
-    }
+// --- Helper para enviar cambios al servidor ---
+function apiPost(action, payload) {
+    return fetch(API + "?action=" + action, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload || {})
+    })
+    .then(r => r.json())
+    .catch(err => { console.error("Error API (" + action + "):", err); });
 }
 
-function guardarEnStorage(key, data) {
-    try {
-        localStorage.setItem(key, JSON.stringify(data));
-    } catch (error) {
-        console.error(`Error al guardar la clave ${key}:`, error);
-    }
-}
-
-// --- Métodos Públicos ---
 const StorageService = {
 
-    // Inicializa la "Base de Datos" la primera vez
-    inicializarBaseDeDatos(listaProductos) {
-        if (localStorage.getItem(KEYS.INICIALIZADO)) return;
+    // Caché en memoria (se llena con cargarTodo)
+    _estados:  {},
+    _baneados: {},
+    _fechas:   {},
+    _offset:   0,
+    _cargado:  false,
 
-        const estadosIniciales = {};
-        const contadoresPorCategoria = {};
+    // ============================================================
+    // CARGA INICIAL — trae todo desde MySQL
+    // ============================================================
+    async cargarTodo() {
+        const resp = await fetch(API + "?action=snapshot");
+        const data = await resp.json();
+        if (data.error) throw new Error(data.error);
 
-        listaProductos.forEach(producto => {
-            const cat = producto.categoria;
-            if (!contadoresPorCategoria[cat]) contadoresPorCategoria[cat] = 0;
-            if (contadoresPorCategoria[cat] < 3) {
-                estadosIniciales[producto.id] = "aprobado";
-                contadoresPorCategoria[cat]++;
-            } else {
-                estadosIniciales[producto.id] = "pendiente";
-            }
-        });
-
-        guardarEnStorage(KEYS.ESTADOS,  estadosIniciales);
-        guardarEnStorage(KEYS.BANEADOS, {});
-        guardarEnStorage(KEYS.FECHAS,   {});
-        localStorage.setItem(KEYS.OFFSET_TIEMPO, "0");
-        localStorage.setItem(KEYS.INICIALIZADO, "true");
-        console.log("🌱 Base de datos inicializada (3 aprobados por categoría).");
+        window.productos = data.productos || [];
+        this._estados   = data.estados   || {};
+        this._baneados  = data.baneados  || {};
+        this._fechas    = data.fechas    || {};
+        this._offset    = data.offset    || 0;
+        this._cargado   = true;
+        console.log("✅ Datos cargados desde MySQL:", window.productos.length, "productos.");
     },
+
+    // Ya no siembra nada: los datos viven en la base de datos.
+    inicializarBaseDeDatos() { /* no-op (datos en MySQL) */ },
 
     // ============================================================
     // CONTROL DE TIEMPO SIMULADO
     // ============================================================
-
-    // Obtener la fecha/hora actual SIMULADA (real + offset)
     ahora() {
-        const offset = parseInt(localStorage.getItem(KEYS.OFFSET_TIEMPO) || "0");
-        return new Date(Date.now() + offset);
+        return new Date(Date.now() + this._offset);
     },
-
-    // Obtener el offset actual en ms
     obtenerOffset() {
-        return parseInt(localStorage.getItem(KEYS.OFFSET_TIEMPO) || "0");
+        return this._offset;
     },
-
-    // Adelantar el tiempo global (en ms)
     adelantarTiempo(ms) {
-        const actual = this.obtenerOffset();
-        localStorage.setItem(KEYS.OFFSET_TIEMPO, String(actual + ms));
+        this._offset += ms;
+        apiPost("offset", { valor: this._offset });
     },
-
-    // Resetear el tiempo al real
     resetearTiempo() {
-        localStorage.setItem(KEYS.OFFSET_TIEMPO, "0");
+        this._offset = 0;
+        apiPost("offset", { valor: 0 });
     },
 
     // ---- Fechas editadas por producto ----
     obtenerFechasEditadas() {
-        return leerDeStorage(KEYS.FECHAS);
+        return this._fechas;
     },
-
-    // Guardar fechas personalizadas para un producto
     editarFechasProducto(id, fechaInicio, fechaFin) {
-        const fechas = this.obtenerFechasEditadas();
-        fechas[id] = { fechaInicio, fechaFin };
-        guardarEnStorage(KEYS.FECHAS, fechas);
+        this._fechas[String(id)] = { fechaInicio, fechaFin };
+        apiPost("fechas", { id, fechaInicio, fechaFin });
     },
-
-    // Eliminar fechas personalizadas (restaurar las originales)
     restaurarFechasProducto(id) {
-        const fechas = this.obtenerFechasEditadas();
-        delete fechas[id];
-        guardarEnStorage(KEYS.FECHAS, fechas);
+        delete this._fechas[String(id)];
+        apiPost("restaurarFechas", { id });
     },
-
-    // Obtener fecha de inicio efectiva de un producto
     fechaInicioEfectiva(p) {
-        const editadas = this.obtenerFechasEditadas();
-        return editadas[p.id]?.fechaInicio || p.fechaInicio || null;
+        return this._fechas[String(p.id)]?.fechaInicio || p.fechaInicio || null;
     },
-
-    // Obtener fecha de fin efectiva de un producto
     fechaFinEfectiva(p) {
-        const editadas = this.obtenerFechasEditadas();
-        return editadas[p.id]?.fechaFin || p.fechaFin || null;
+        return this._fechas[String(p.id)]?.fechaFin || p.fechaFin || null;
     },
 
     // ============================================================
     // ESTADOS
     // ============================================================
     obtenerEstados() {
-        return leerDeStorage(KEYS.ESTADOS);
+        return this._estados;
     },
-
     actualizarEstadoProducto(id, nuevoEstado) {
-        const estados = this.obtenerEstados();
-        estados[id] = nuevoEstado;
-        guardarEnStorage(KEYS.ESTADOS, estados);
+        this._estados[String(id)] = nuevoEstado;
+        apiPost("estado", { id, estado: nuevoEstado });
     },
 
     // ============================================================
     // BANEADOS
     // ============================================================
     obtenerBaneados() {
-        return leerDeStorage(KEYS.BANEADOS);
+        return this._baneados;
     },
-
     estaProductoBaneado(id) {
-        return !!this.obtenerBaneados()[id];
+        return !!this._baneados[String(id)];
     },
-
     conmutarBaneoProducto(id) {
-        const baneados = this.obtenerBaneados();
-        if (baneados[id]) { delete baneados[id]; } else { baneados[id] = true; }
-        guardarEnStorage(KEYS.BANEADOS, baneados);
+        const k = String(id);
+        if (this._baneados[k]) { delete this._baneados[k]; }
+        else { this._baneados[k] = true; }
+        apiPost("baneo", { id });
     }
 };
 
 window.StorageService = StorageService;
+
+// ============================================================
+// ARRANQUE: carga los datos y luego llama al init() de la página
+// ============================================================
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        await StorageService.cargarTodo();
+    } catch (e) {
+        console.error("No se pudo cargar la base de datos:", e);
+        document.body.insertAdjacentHTML("afterbegin",
+            '<div style="background:#fee2e2;color:#991b1b;padding:14px;text-align:center;' +
+            'font-family:sans-serif;font-size:14px">⚠️ No se pudo conectar con la base de datos. ' +
+            'Revisa que XAMPP (Apache + MySQL) esté encendido y que importaste ' +
+            '<b>subastanet_completo.sql</b> en phpMyAdmin.</div>');
+        return;
+    }
+    if (typeof init === "function") init();
+});

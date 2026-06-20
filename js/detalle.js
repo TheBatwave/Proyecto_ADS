@@ -250,4 +250,4 @@ document.addEventListener("keydown", e => {
   if (e.key === "ArrowRight") moverLightbox(1);
 });
 
-init();
+// El arranque lo dispara storageService.js al terminar de cargar la BD (llama init()).
