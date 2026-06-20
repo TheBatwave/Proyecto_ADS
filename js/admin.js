@@ -61,6 +61,17 @@ function crearCard(p) {
        </button>`
     : "";
 
+  // Bloque de verificación de documento de propiedad (solo si el producto lo tiene)
+  const docHTML = p.documentoPropiedad
+    ? `<div class="admin-doc ${p.documentoVerificado ? "doc-ok" : "doc-pend"}">
+         <span class="doc-estado">${p.documentoVerificado ? "✅ Documentación verificada" : "⏳ Documento sin verificar"}</span>
+         <a class="doc-ver-link" href="${p.documentoPropiedad}" target="_blank">Ver documento</a>
+         <button class="btn-verificar-doc" onclick="verificarDoc(${p.id})">
+           ${p.documentoVerificado ? "Quitar verificación" : "🔎 Verificar"}
+         </button>
+       </div>`
+    : "";
+
   const card = document.createElement("div");
   card.className = "admin-card" + (baneado ? " card-baneada" : "");
   card.id = "card-" + p.id;
@@ -76,6 +87,7 @@ function crearCard(p) {
       ${tiempoHTML}
       <div class="admin-acciones">${botones}</div>
       ${btnBaneo}
+      ${docHTML}
       <button class="btn-detalle" onclick="window.open('detalle.html?id=${p.id}','_blank')">
         🔍 Ver detalle
       </button>
@@ -126,6 +138,7 @@ function aprobar(id)  { StorageService.actualizarEstadoProducto(id, "aprobado");
 function rechazar(id) { StorageService.actualizarEstadoProducto(id, "rechazado"); renderizar(); }
 function revertir(id) { StorageService.actualizarEstadoProducto(id, "pendiente"); renderizar(); }
 function alternarBaneo(id) { StorageService.conmutarBaneoProducto(id); renderizar(); }
+function verificarDoc(id) { StorageService.verificarDocumento(id); renderizar(); }
 
 function cambiarTab(nombre) {
   const nombres = ["pendientes", "aprobados", "rechazados", "tiempo"];
@@ -239,6 +252,8 @@ function renderizarPanelTiempo() {
             <input type="date" id="fin-${p.id}" value="${finEfectiva}">
           </label>
           <button class="btn-guardar-fecha" onclick="guardarFechas(${p.id})">💾 Guardar</button>
+          <button class="btn-terminar-ya" onclick="terminarYa(${p.id})">⏰ Terminar ya</button>
+          <button class="btn-extender" onclick="extender(${p.id})">♻️ Extender +7d</button>
           ${tieneEdicion ? `<button class="btn-restaurar-fecha" onclick="restaurarFechas(${p.id})">↩ Original</button>` : ""}
         </div>`;
       seccion.appendChild(fila);
@@ -263,6 +278,27 @@ function restaurarFechas(id) {
   renderizar();
 }
 
+// Atajos de presentación: terminar o extender una subasta al instante
+function fechaISO(offsetDias) {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDias);
+  return d.toISOString().slice(0, 10);
+}
+function terminarYa(id) {
+  const p = (window.productos || []).find(x => x.id == id);
+  const inicio = StorageService.fechaInicioEfectiva(p) || fechaISO(-1);
+  StorageService.editarFechasProducto(id, inicio, fechaISO(-1)); // cierre = ayer => vencida
+  renderizarPanelTiempo();
+  renderizar();
+}
+function extender(id) {
+  const p = (window.productos || []).find(x => x.id == id);
+  const inicio = StorageService.fechaInicioEfectiva(p) || fechaISO(0);
+  StorageService.editarFechasProducto(id, inicio, fechaISO(7)); // cierre = hoy + 7 => vigente
+  renderizarPanelTiempo();
+  renderizar();
+}
+
 // ---- Actualizar reloj cada segundo cuando está en la pestaña de tiempo ----
 setInterval(() => {
   const panelTiempo = document.getElementById("panel-tiempo");
@@ -274,5 +310,15 @@ setInterval(() => {
 // ---- Arrancar ----
 // storageService.js llama a init() cuando termina de cargar la BD desde MySQL.
 function init() {
+  // Protección: solo el administrador puede entrar al panel
+  if (!StorageService.esAdmin()) {
+    window.location.href = "index.html";
+    return;
+  }
   renderizar();
+}
+
+// Cerrar sesión del administrador
+function cerrarSesion() {
+  StorageService.cerrarSesion();
 }

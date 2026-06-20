@@ -29,10 +29,12 @@ function init() {
     return;
   }
 
+  const esAdmin = window.StorageService && StorageService.esAdmin && StorageService.esAdmin();
+
   // 🛡️ VALIDACIÓN DE SEGURIDAD DE ADS:
-  // Si el producto no está aprobado o está baneado en el StorageService,
-  // bloqueamos el acceso al detalle de forma dinámica.
-  if (window.StorageService) {
+  // El visitante solo ve productos aprobados y no baneados.
+  // El administrador SÍ puede previsualizar cualquier producto (pendiente/rechazado/baneado).
+  if (!esAdmin && window.StorageService) {
     const estados = StorageService.obtenerEstados();
     const estado = estados[p.id] || "pendiente";
     const baneado = StorageService.estaProductoBaneado(p.id);
@@ -41,6 +43,18 @@ function init() {
       mostrarError("Este producto no está disponible para subasta en este momento o ha sido retirado.");
       return;
     }
+  }
+
+  // Si es admin, mostramos una barra para volver al panel sin perder la sesión
+  if (esAdmin) {
+    const estados = StorageService.obtenerEstados();
+    const estado = estados[p.id] || "pendiente";
+    const barra = document.createElement("div");
+    barra.className = "admin-bar";
+    barra.innerHTML =
+      `<span>👤 Vista de administrador — previsualizando producto (estado: <strong>${estado}</strong>)</span>
+       <button onclick="window.location.href='admin.html'">← Volver al panel</button>`;
+    document.body.insertBefore(barra, document.body.firstChild);
   }
 
   // Si pasa la validación, construimos el Breadcrumb de forma normal
@@ -109,6 +123,23 @@ function renderizarProducto(p) {
   const metodos = p.vendedor?.metodosEnvio?.join(" · ") || "No especificado";
   const calif   = p.vendedor?.calificacion || 0;
   const estrellas = "⭐".repeat(Math.round(calif));
+
+  // Sección de documento de propiedad (solo si el producto lo tiene)
+  const docSection = p.documentoPropiedad
+    ? `<div class="det-seccion det-doc">
+         <h3>📄 Documento de propiedad</h3>
+         <div class="doc-card ${p.documentoVerificado ? "doc-ok" : "doc-pend"}">
+           <img src="${p.documentoPropiedad}" alt="Documento de propiedad" class="doc-img"
+                onclick="window.open('${p.documentoPropiedad}','_blank')">
+           <div class="doc-info">
+             <span class="doc-badge ${p.documentoVerificado ? "verificado" : "pendiente"}">
+               ${p.documentoVerificado ? "✅ Documentación verificada por el administrador" : "⏳ Documentación en revisión"}
+             </span>
+             <p class="doc-nota">Da clic en el documento para ampliarlo.</p>
+           </div>
+         </div>
+       </div>`
+    : "";
 
   // Galería
   const galeriaHTML = imagenesProducto.length > 1
@@ -183,6 +214,7 @@ function renderizarProducto(p) {
         </div>
 
         <!-- Vendedor -->
+        ${docSection}
         <div class="vendedor-box">
           <h3> Vendedor</h3>
           <p class="vend-nombre">${p.vendedor?.nombre || "Desconocido"}</p>

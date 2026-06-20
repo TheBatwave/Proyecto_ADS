@@ -5,6 +5,7 @@
 // ============================================================
 
 require_once __DIR__ . '/conexion.php';
+session_start();
 header('Content-Type: application/json; charset=utf-8');
 
 $pdo    = conectarBD();
@@ -101,6 +102,8 @@ try {
                     'tipoSubasta'        => $p['tipo_subasta'],
                     'estado'             => $p['estado'],
                     'baneado'            => (int)$p['baneado'] === 1,
+                    'documentoPropiedad'  => $p['documento_propiedad'],
+                    'documentoVerificado' => (int)$p['documento_verificado'] === 1,
                     'vendedor'           => [
                         'id'              => $p['vendedor_id'],
                         'nombre'          => $p['vend_nombre'],
@@ -117,7 +120,12 @@ try {
                 'estados'   => $estados,
                 'baneados'  => $baneados,
                 'fechas'    => (object)$fechas,
-                'offset'    => $offset
+                'offset'    => $offset,
+                'sesion'    => [
+                    'logueado' => isset($_SESSION['rol']),
+                    'rol'      => $_SESSION['rol'] ?? null,
+                    'correo'   => $_SESSION['correo'] ?? null
+                ]
             ]);
             break;
         }
@@ -138,8 +146,22 @@ try {
             );
             $stmt->execute([$correo, $pass]);
             $u = $stmt->fetch();
-            if ($u) responder(['ok' => true, 'rol' => $u['rol']]);
+            if ($u) {
+                $_SESSION['rol']    = $u['rol'];
+                $_SESSION['correo'] = $correo;
+                responder(['ok' => true, 'rol' => $u['rol']]);
+            }
             responder(['ok' => false]);
+            break;
+        }
+
+        // ====================================================
+        // CERRAR SESIÓN
+        // ====================================================
+        case 'logout': {
+            $_SESSION = [];
+            session_destroy();
+            responder(['ok' => true]);
             break;
         }
 
@@ -194,6 +216,19 @@ try {
             $id = (int)($d['id'] ?? 0);
             $pdo->prepare("DELETE FROM fechas_editadas WHERE producto_id = ?")->execute([$id]);
             responder(['ok' => true]);
+            break;
+        }
+
+        // ====================================================
+        // VERIFICAR DOCUMENTACIÓN de propiedad (toggle)
+        // ====================================================
+        case 'verificarDoc': {
+            $d  = cuerpo();
+            $id = (int)($d['id'] ?? 0);
+            $pdo->prepare("UPDATE productos SET documento_verificado = 1 - documento_verificado WHERE id = ?")->execute([$id]);
+            $b = $pdo->prepare("SELECT documento_verificado FROM productos WHERE id = ?");
+            $b->execute([$id]);
+            responder(['ok' => true, 'verificado' => (int)$b->fetchColumn() === 1]);
             break;
         }
 

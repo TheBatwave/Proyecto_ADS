@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" font-family="Arial, Helvetica, sans-serif">
+  <rect width="600" height="400" fill="#eef2f7"/>
+  <rect x="14" y="14" width="572" height="372" fill="#f8fafc" stroke="#94a3b8" stroke-width="3" stroke-dasharray="12 8" rx="14"/>
+  <text x="300" y="150" text-anchor="middle" font-size="78">📷</text>
+  <text x="300" y="205" text-anchor="middle" font-size="26" font-weight="bold" fill="#475569" letter-spacing="1">FALTA FOTO</text>
+  <text x="300" y="234" text-anchor="middle" font-size="14" fill="#64748b">Coloca aquí la imagen real del producto</text>
+  <text x="300" y="290" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e293b"><tspan x="300" dy="0">Tabla de Surf Profesional</tspan></text>
+  <text x="300" y="372" text-anchor="middle" font-size="13" fill="#94a3b8">⚽ Artículos Deportivos · ID 227</text>
+</svg>

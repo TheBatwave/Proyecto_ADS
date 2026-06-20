@@ -28,7 +28,7 @@ actores: **Administrador** (gestiona productos, baneos y control de tiempo) y
 3. **Importar la base de datos**
    - Entra a `http://localhost/phpmyadmin`
    - Pestaña **Importar** -> elige `Proyecto_ADS/database/subastanet_completo.sql` -> **Continuar**.
-   - Eso crea la base `subastanet` con sus tablas y los 200 productos.
+   - Eso crea la base `subastanet` con sus tablas y los 240 productos.
 
 Listo. Abre: **`http://localhost/Proyecto_ADS/index.html`**
 
@@ -67,7 +67,7 @@ Proyecto_ADS/
 │   ├── script.js          Login del admin
 │   ├── subasta.js / detalle.js / admin.js   Controladores de cada vista
 │   └── productos.js        (deprecado: los datos ahora están en MySQL)
-├── Img/              200 imágenes locales (funciona sin internet)
+├── Img/              imágenes locales (funciona sin internet)
 └── database/
     ├── 01_esquema.sql          Solo las tablas (CREATE TABLE)
     ├── 02_datos.sql            Solo los datos (INSERT)
@@ -105,6 +105,14 @@ Base de datos `subastanet`, **11 tablas** normalizadas:
 
 ---
 
+
+**Novedad — Documento de propiedad:** la tabla `productos` tiene dos columnas
+nuevas: `documento_propiedad` (imagen de la escritura / factura / certificado) y
+`documento_verificado` (el administrador valida la propiedad). Aplica a Inmuebles,
+Vehículos y Arte Coleccionable. Los documentos vectoriales están en `Img/docs/`.
+
+---
+
 ## 6. ¿Cómo funciona por dentro?
 
 1. Al abrir cualquier página, `storageService.js` llama a
@@ -123,3 +131,19 @@ Base de datos `subastanet`, **11 tablas** normalizadas:
 - **No cargan imágenes / no funciona el login**: abriste el `.html` con doble
   clic. Entra por `http://localhost/Proyecto_ADS/`.
 - **Tu MySQL de root tiene contraseña**: edítala en `api/conexion.php` (DB_PASS).
+
+---
+
+## 8. Cambios recientes (sesión, fotos pendientes y tiempo)
+
+- **Sesión real de administrador:** el login usa sesiones de PHP. El panel
+  `admin.html` queda protegido (si no hay sesión, redirige al inicio) y hay botón
+  **Cerrar sesión**. Al abrir el detalle de un producto desde el panel, el admin
+  **ya no pierde la sesión** y puede previsualizar productos pendientes/rechazados.
+- **Fotos pendientes:** los 40 productos nuevos muestran un marcador "📷 Falta foto"
+  con el nombre del producto (carpeta `Img/pendientes/`). Para poner la foto real:
+  copia tu imagen a la carpeta `Img/` de la categoría y actualiza la ruta del
+  producto en la BD (tabla `productos`, columna `imagen`, e `imagenes_producto`).
+- **Tiempo de subastas:** en el panel de tiempo, además de avanzar el reloj global,
+  cada subasta tiene atajos **"Terminar ya"** y **"Extender +7d"** para cambiar su
+  estado al instante durante la presentación (sin esperar en tiempo real).

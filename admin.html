@@ -13,7 +13,10 @@
     <img src="https://cdn-icons-png.flaticon.com/512/783/783247.png" alt="logo">
     <h1>Panel Administrador</h1>
   </div>
-  <div class="admin-header-right">admin.central@subastanet.com</div>
+  <div class="admin-header-right">
+    <span class="admin-correo">admin.central@subastanet.com</span>
+    <button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
 </header>
 
 <div class="tabs">
@@ -63,7 +66,8 @@
 
     <!-- ADELANTAR TIEMPO GLOBAL -->
     <div class="tiempo-controles">
-      <h3 class="controles-titulo">⚡ Adelantar tiempo global</h3>
+      <h3 class="controles-titulo">⚡ Avanzar el reloj del sistema</h3>
+      <p class="tiempo-desc">Adelanta la hora de todo el sistema para ver al instante cómo cambian las subastas (vigentes → vencidas). Ideal para la presentación: no hay que esperar en tiempo real.</p>
       <div class="btns-tiempo">
         <button class="btn-tiempo" onclick="adelantar(30 * 60 * 1000)">+30 min</button>
         <button class="btn-tiempo" onclick="adelantar(60 * 60 * 1000)">+1 hora</button>
@@ -79,8 +83,8 @@
 
   <!-- EDITAR FECHAS POR PRODUCTO -->
   <div class="tiempo-section">
-    <h2 class="tiempo-titulo">📅 Editar fechas por producto</h2>
-    <p class="tiempo-desc">Ajusta el inicio y cierre de cada subasta individualmente para tu demo.</p>
+    <h2 class="tiempo-titulo">📅 Tiempo de cada subasta</h2>
+    <p class="tiempo-desc">Ajusta el inicio y cierre de cada subasta, o usa los atajos <strong>“Terminar ya”</strong> y <strong>“Extender +7d”</strong> para cambiar su estado al instante durante la presentación.</p>
     <div id="lista-fechas-productos"></div>
   </div>
 

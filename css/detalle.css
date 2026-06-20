@@ -67,7 +67,7 @@ body { background: #f0f2f5; color: #1a1a2e; }
   cursor: zoom-in;
 }
 .img-principal-wrap img {
-  width: 100%; max-height: 440px;
+  width: 100%; height: 420px;
   object-fit: cover; display: block;
   transition: transform .3s;
 }
@@ -295,3 +295,36 @@ body { background: #f0f2f5; color: #1a1a2e; }
   padding: 8px; background: #fff; border-radius: 6px;
   border-left: 3px solid #bae6fd;
 }
+/* ===== Documento de propiedad (vista detalle) ===== */
+.det-doc .doc-card {
+  display: flex; gap: 16px; align-items: flex-start;
+  border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;
+  background: #f8fafc;
+}
+.det-doc .doc-card.doc-ok   { border-color: #86efac; background: #f0fdf4; }
+.det-doc .doc-card.doc-pend { border-color: #fde68a; background: #fffbeb; }
+.det-doc .doc-img {
+  width: 150px; height: 112px; object-fit: cover;
+  border-radius: 8px; border: 1px solid #cbd5e1; cursor: zoom-in;
+  flex-shrink: 0; background: #fff;
+}
+.det-doc .doc-info { display: flex; flex-direction: column; gap: 8px; }
+.det-doc .doc-badge {
+  display: inline-block; font-size: 13px; font-weight: 600;
+  padding: 6px 12px; border-radius: 999px; width: fit-content;
+}
+.det-doc .doc-badge.verificado { background: #dcfce7; color: #166534; }
+.det-doc .doc-badge.pendiente  { background: #fef3c7; color: #92400e; }
+.det-doc .doc-nota { font-size: 12px; color: #64748b; }
+
+/* ===== Barra de administrador en vista de detalle ===== */
+.admin-bar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  background: #1e293b; color: #fff; padding: 10px 18px; font-size: 14px;
+}
+.admin-bar button {
+  border: 1px solid rgba(255,255,255,.5); background: transparent; color: #fff;
+  padding: 7px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; width: auto;
+}
+.admin-bar button:hover { background: rgba(255,255,255,.15); }

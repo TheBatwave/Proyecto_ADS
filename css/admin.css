@@ -282,3 +282,38 @@ body { background: #f0f2f5; color: #1a1a2e; }
   width: auto; margin-top: 0; transition: .2s; align-self: flex-end;
 }
 .btn-restaurar-fecha:hover { background: #e2e8f0; }
+/* ===== Verificación de documento (panel admin) ===== */
+.admin-doc {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 8px; padding: 8px 10px; border-radius: 8px; font-size: 12.5px;
+}
+.admin-doc.doc-ok   { background: #f0fdf4; border: 1px solid #bbf7d0; }
+.admin-doc.doc-pend { background: #fffbeb; border: 1px solid #fde68a; }
+.admin-doc .doc-estado { font-weight: 600; color: #334155; flex: 1 1 100%; }
+.admin-doc .doc-ver-link { color: #1d4ed8; text-decoration: underline; font-size: 12px; }
+.btn-verificar-doc {
+  border: none; cursor: pointer; padding: 6px 10px; border-radius: 6px;
+  font-size: 12px; font-weight: 600; background: #2563eb; color: #fff;
+}
+.btn-verificar-doc:hover { background: #1d4ed8; }
+.admin-doc.doc-ok .btn-verificar-doc { background: #64748b; }
+.admin-doc.doc-ok .btn-verificar-doc:hover { background: #475569; }
+
+/* ===== Cerrar sesión ===== */
+.admin-header-right { display: flex; align-items: center; gap: 14px; }
+.admin-correo { font-size: 13px; opacity: .85; }
+.btn-logout {
+  border: 1px solid rgba(255,255,255,.5); background: transparent; color: #fff;
+  padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600;
+}
+.btn-logout:hover { background: rgba(255,255,255,.15); }
+
+/* ===== Atajos de tiempo por subasta ===== */
+.btn-terminar-ya, .btn-extender {
+  border: none; cursor: pointer; padding: 7px 12px; border-radius: 7px;
+  font-size: 12.5px; font-weight: 600; color: #fff;
+}
+.btn-terminar-ya { background: #dc2626; }
+.btn-terminar-ya:hover { background: #b91c1c; }
+.btn-extender { background: #16a34a; }
+.btn-extender:hover { background: #15803d; }

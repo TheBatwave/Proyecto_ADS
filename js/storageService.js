@@ -25,6 +25,7 @@ const StorageService = {
     _baneados: {},
     _fechas:   {},
     _offset:   0,
+    _sesion:   { logueado: false, rol: null },
     _cargado:  false,
 
     // ============================================================
@@ -40,8 +41,21 @@ const StorageService = {
         this._baneados  = data.baneados  || {};
         this._fechas    = data.fechas    || {};
         this._offset    = data.offset    || 0;
+        this._sesion    = data.sesion    || { logueado: false, rol: null };
         this._cargado   = true;
         console.log("✅ Datos cargados desde MySQL:", window.productos.length, "productos.");
+    },
+
+    // ============================================================
+    // SESIÓN
+    // ============================================================
+    esAdmin() {
+        return !!(this._sesion && this._sesion.logueado && this._sesion.rol === "administrador");
+    },
+    cerrarSesion() {
+        return fetch(API + "?action=logout", { method: "POST" })
+            .catch(() => {})
+            .then(() => { window.location.href = "index.html"; });
     },
 
     // Ya no siembra nada: los datos viven en la base de datos.
@@ -109,6 +123,16 @@ const StorageService = {
         if (this._baneados[k]) { delete this._baneados[k]; }
         else { this._baneados[k] = true; }
         apiPost("baneo", { id });
+    },
+
+    // ============================================================
+    // VERIFICACIÓN DE DOCUMENTO DE PROPIEDAD
+    // ============================================================
+    verificarDocumento(id) {
+        // Cambia el estado en el producto cacheado para refrescar la vista al instante
+        const p = (window.productos || []).find(x => x.id == id);
+        if (p) p.documentoVerificado = !p.documentoVerificado;
+        apiPost("verificarDoc", { id });
     }
 };
 

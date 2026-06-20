@@ -97,6 +97,8 @@ CREATE TABLE productos (
   tipo_subasta        ENUM('Inglesa','Holandesa','Sellada') NOT NULL,
   estado              ENUM('pendiente','aprobado','rechazado') NOT NULL DEFAULT 'pendiente',
   baneado             TINYINT(1) NOT NULL DEFAULT 0,
+  documento_propiedad  VARCHAR(255) NULL,                -- imagen del documento (escritura/factura/certificado)
+  documento_verificado TINYINT(1) NOT NULL DEFAULT 0,    -- el admin valida la propiedad
   vendedor_id         VARCHAR(10),
   FOREIGN KEY (categoria_id) REFERENCES categorias(id),
   FOREIGN KEY (vendedor_id)  REFERENCES vendedores(id)
