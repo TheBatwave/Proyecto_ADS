@@ -46,9 +46,9 @@ function crearCard(p) {
   let botones = "";
   if (estado === "pendiente") {
     botones = `<button class="btn-aprobar"  onclick="aprobar(${p.id})">Aprobar</button>
-               <button class="btn-rechazar" onclick="rechazar(${p.id})">Rechazar</button>`;
+               <button class="btn-rechazar" onclick="cancelarConMotivo(${p.id})">Rechazar</button>`;
   } else if (estado === "aprobado") {
-    botones = `<button class="btn-rechazar" onclick="rechazar(${p.id})">Rechazar</button>
+    botones = `<button class="btn-rechazar" onclick="cancelarConMotivo(${p.id})">Cancelar</button>
                <button class="btn-revertir" onclick="revertir(${p.id})">↩ Pendiente</button>`;
   } else {
     botones = `<button class="btn-aprobar"  onclick="aprobar(${p.id})">Aprobar</button>
@@ -84,6 +84,7 @@ function crearCard(p) {
       <p class="admin-card-titulo">${p.titulo}</p>
       <p class="admin-card-cat">${p.condicion}</p>
       <p class="admin-card-precio">$${p.precioInicial.toLocaleString("es-MX")} MXN</p>
+      ${estado === "rechazado" && p.motivoCancelacion ? `<p class="card-motivo">📝 Motivo: ${p.motivoCancelacion}</p>` : ""}
       ${tiempoHTML}
       <div class="admin-acciones">${botones}</div>
       ${btnBaneo}
@@ -136,6 +137,16 @@ function renderizar() {
 
 function aprobar(id)  { StorageService.actualizarEstadoProducto(id, "aprobado");  renderizar(); }
 function rechazar(id) { StorageService.actualizarEstadoProducto(id, "rechazado"); renderizar(); }
+
+// Cancelar / rechazar pidiendo un motivo (regla de negocio: cancelación con justificación)
+function cancelarConMotivo(id) {
+  const motivo = prompt("Escribe el motivo de la cancelación o rechazo (lo verá el equipo):");
+  if (motivo === null) return;            // el admin canceló el cuadro de diálogo
+  const texto = motivo.trim();
+  if (!texto) { alert("Debes escribir un motivo para cancelar."); return; }
+  StorageService.cancelarConMotivo(id, texto);
+  renderizar();
+}
 function revertir(id) { StorageService.actualizarEstadoProducto(id, "pendiente"); renderizar(); }
 function alternarBaneo(id) { StorageService.conmutarBaneoProducto(id); renderizar(); }
 function verificarDoc(id) { StorageService.verificarDocumento(id); renderizar(); }
@@ -263,10 +274,36 @@ function renderizarPanelTiempo() {
   });
 }
 
+// Rangos de duración permitidos por categoría (regla de negocio)
+function rangoDuracion(categoria) {
+  if (categoria === "Inmuebles") return { min: 7, max: 30 };
+  if (categoria === "Vehículos") return { min: 3, max: 14 };
+  return { min: 1, max: 7 }; // artículos generales: 24 h a 7 días
+}
+
 function guardarFechas(id) {
   const inicio = document.getElementById(`inicio-${id}`)?.value;
   const fin    = document.getElementById(`fin-${id}`)?.value;
-  if (!fin) { alert("Por favor ingresa al menos una fecha de cierre."); return; }
+  if (!inicio || !fin) { alert("Por favor ingresa la fecha de inicio y la de cierre."); return; }
+
+  // Validación de la regla de negocio: duración dentro del rango por categoría
+  const p = (window.productos || []).find(x => x.id == id);
+  const dias = Math.round((new Date(fin) - new Date(inicio)) / (1000 * 60 * 60 * 24));
+  if (dias <= 0) {
+    alert("La fecha de cierre debe ser posterior a la de inicio.");
+    return;
+  }
+  const r = rangoDuracion(p?.categoria);
+  if (dias < r.min || dias > r.max) {
+    alert(
+      `La duración debe estar entre ${r.min} y ${r.max} días para la categoría "${p?.categoria}".\n` +
+      `Recuerda: artículos generales 1–7 días, vehículos 3–14 días, inmuebles 7–30 días.\n` +
+      `(Tu rango actual es de ${dias} días.)\n\n` +
+      `Si solo quieres terminar o extender la subasta para la presentación, usa los botones "Terminar ya" o "Extender +7d".`
+    );
+    return;
+  }
+
   StorageService.editarFechasProducto(id, inicio, fin);
   renderizarPanelTiempo();
   renderizar();

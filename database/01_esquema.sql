@@ -99,6 +99,7 @@ CREATE TABLE productos (
   baneado             TINYINT(1) NOT NULL DEFAULT 0,
   documento_propiedad  VARCHAR(255) NULL,                -- imagen del documento (escritura/factura/certificado)
   documento_verificado TINYINT(1) NOT NULL DEFAULT 0,    -- el admin valida la propiedad
+  motivo_cancelacion   VARCHAR(255) NULL,                -- motivo cuando el admin cancela/rechaza
   vendedor_id         VARCHAR(10),
   FOREIGN KEY (categoria_id) REFERENCES categorias(id),
   FOREIGN KEY (vendedor_id)  REFERENCES vendedores(id)

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Casa de Subasta — Explorar</title>
-  <link rel="stylesheet" href="css/subasta.css">
+  <link rel="stylesheet" href="css/subasta.css?v=4">
 </head>
 <body>
  
@@ -17,7 +17,7 @@
     </div>
     <nav class="header-nav">
       <button onclick="init()"> Inicio</button>
-      <a href="index.html"><button> Iniciar sesión</button></a>
+      <a href="index.html?login=1"><button> Iniciar sesión</button></a>
     </nav>
   </div>
   <p class="header-sub">Explora las mejores subastas — inicia sesión para pujar</p>
@@ -43,14 +43,14 @@
     <h3>¡Regístrate para pujar!</h3>
     <p>Para participar en esta subasta necesitas iniciar sesión o crear una cuenta.</p>
     <div class="modal-botones">
-      <a href="index.html"><button class="btn-login-modal">Iniciar sesión</button></a>
+      <a href="index.html?login=1"><button class="btn-login-modal">Iniciar sesión</button></a>
       <button class="btn-cancelar-modal" onclick="cerrarModalLogin()">Seguir explorando</button>
     </div>
   </div>
 </div>
  
-<script src="js/productos.js"></script>
-<script src="js/storageService.js"></script>
-<script src="js/subasta.js"></script>
+<script src="js/productos.js?v=4"></script>
+<script src="js/storageService.js?v=4"></script>
+<script src="js/subasta.js?v=4"></script>
 </body>
 </html>

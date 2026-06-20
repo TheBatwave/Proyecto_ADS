@@ -216,3 +216,22 @@ button:hover {
 @media (max-width: 440px) {
   .container { padding: 28px 20px 22px; width: 100%; border-radius: 14px; }
 }
+
+/* ============================================================
+   Pulido profesional (login)
+   ============================================================ */
+html { scroll-behavior: smooth; }
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+::selection { background: rgba(201,151,58,.30); }
+:focus-visible { outline: 2px solid #c9973a; outline-offset: 2px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+.container { transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease; }
+.input-group { transition: border-color .2s ease, box-shadow .2s ease; }
+.input-group:focus-within { box-shadow: 0 0 0 3px rgba(201,151,58,.18); }
+button { transition: transform .15s ease, background-color .2s ease, box-shadow .2s ease, filter .2s ease; }
+button:active { transform: translateY(1px); }
+.visitante-container button:hover,
+.form-login > button:hover { filter: brightness(1.06); box-shadow: 0 6px 18px rgba(0,0,0,.18); transform: translateY(-1px); }

@@ -328,3 +328,32 @@ body { background: #f0f2f5; color: #1a1a2e; }
   padding: 7px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; width: auto;
 }
 .admin-bar button:hover { background: rgba(255,255,255,.15); }
+
+/* ============================================================
+   Pulido profesional (detalle) + documento bloqueado
+   ============================================================ */
+html { scroll-behavior: smooth; }
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+::selection { background: rgba(26,86,219,.20); }
+:focus-visible { outline: 2px solid #1a56db; outline-offset: 2px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+button { transition: transform .15s ease, background-color .2s ease, box-shadow .2s ease; }
+button:active { transform: translateY(1px); }
+
+.det-header { box-shadow: 0 2px 18px rgba(15,25,50,.28); }
+.img-principal-wrap { box-shadow: 0 10px 34px rgba(16,24,40,.16); border-radius: 14px; }
+.thumb { transition: transform .2s ease, border-color .2s ease, opacity .2s ease; }
+.thumb:hover { transform: translateY(-2px); }
+
+/* Documento de propiedad: bloqueado para visitantes */
+.doc-img-wrap { position: relative; display: inline-block; cursor: pointer; line-height: 0; }
+.doc-img-wrap.doc-bloqueado .doc-img { filter: blur(3px) grayscale(.15); }
+.doc-candado {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 30px; background: rgba(15,23,42,.32); border-radius: 8px;
+  transition: background-color .2s ease;
+}
+.doc-img-wrap.doc-bloqueado:hover .doc-candado { background: rgba(15,23,42,.5); }
+.doc-img-wrap:not(.doc-bloqueado):hover .doc-img { outline: 2px solid #1a56db; outline-offset: 2px; }

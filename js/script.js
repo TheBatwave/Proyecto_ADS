@@ -66,4 +66,9 @@ async function loginAdmin() {
 // Inicializar componentes cuando el DOM esté completamente listo
 document.addEventListener("DOMContentLoaded", () => {
     inicializarManejadorPassword();
+    // Si llega como index.html?login=1, abrir directo el formulario de inicio de sesión
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("login") === "1") {
+        irLogin();
+    }
 });

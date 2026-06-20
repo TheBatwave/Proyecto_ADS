@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Casa de Subasta — Detalle del producto</title>
-  <link rel="stylesheet" href="css/detalle.css">
+  <link rel="stylesheet" href="css/detalle.css?v=4">
 </head>
 <body>
 
@@ -17,7 +17,7 @@
     </div>
     <nav class="det-nav">
       <button onclick="volverAtras()">← Volver</button>
-      <a href="index.html"><button> Iniciar sesión</button></a>
+      <a href="index.html?login=1"><button> Iniciar sesión</button></a>
     </nav>
   </div>
 </header>
@@ -38,7 +38,7 @@
     <h3>¡Inicia sesión para pujar!</h3>
     <p>Para participar en esta subasta necesitas iniciar sesión o crear una cuenta.</p>
     <div class="modal-botones">
-      <a href="index.html"><button class="btn-login-modal">Iniciar sesión</button></a>
+      <a href="index.html?login=1"><button class="btn-login-modal">Iniciar sesión</button></a>
       <button class="btn-cancelar-modal" onclick="cerrarModal()">Seguir explorando</button>
     </div>
   </div>
@@ -60,8 +60,8 @@ function volverAtras() {
 }
 </script>
 
-<script src="js/productos.js"></script>
-<script src="js/storageService.js"></script> 
-<script src="js/detalle.js"></script>
+<script src="js/productos.js?v=4"></script>
+<script src="js/storageService.js?v=4"></script> 
+<script src="js/detalle.js?v=4"></script>
 </body>
 </html>

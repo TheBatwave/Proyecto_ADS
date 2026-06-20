@@ -104,6 +104,7 @@ try {
                     'baneado'            => (int)$p['baneado'] === 1,
                     'documentoPropiedad'  => $p['documento_propiedad'],
                     'documentoVerificado' => (int)$p['documento_verificado'] === 1,
+                    'motivoCancelacion'   => $p['motivo_cancelacion'],
                     'vendedor'           => [
                         'id'              => $p['vendedor_id'],
                         'nombre'          => $p['vend_nombre'],
@@ -215,6 +216,19 @@ try {
             $d  = cuerpo();
             $id = (int)($d['id'] ?? 0);
             $pdo->prepare("DELETE FROM fechas_editadas WHERE producto_id = ?")->execute([$id]);
+            responder(['ok' => true]);
+            break;
+        }
+
+        // ====================================================
+        // CANCELAR / RECHAZAR con motivo
+        // ====================================================
+        case 'cancelar': {
+            $d      = cuerpo();
+            $id     = (int)($d['id'] ?? 0);
+            $motivo = trim($d['motivo'] ?? '');
+            $pdo->prepare("UPDATE productos SET estado = 'rechazado', motivo_cancelacion = ? WHERE id = ?")
+                ->execute([$motivo, $id]);
             responder(['ok' => true]);
             break;
         }

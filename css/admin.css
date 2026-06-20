@@ -317,3 +317,39 @@ body { background: #f0f2f5; color: #1a1a2e; }
 .btn-terminar-ya:hover { background: #b91c1c; }
 .btn-extender { background: #16a34a; }
 .btn-extender:hover { background: #15803d; }
+
+/* ============================================================
+   Pulido profesional (admin)
+   ============================================================ */
+html { scroll-behavior: smooth; }
+body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+::selection { background: rgba(26,86,219,.20); }
+:focus-visible { outline: 2px solid #1a56db; outline-offset: 2px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+button { transition: transform .15s ease, background-color .2s ease, box-shadow .2s ease; }
+button:active { transform: translateY(1px); }
+
+.admin-header { box-shadow: 0 4px 20px rgba(15,25,50,.30); }
+.admin-header-left h1 { letter-spacing: -.01em; }
+
+.admin-grid { gap: 18px; }
+.admin-card {
+  box-shadow: 0 1px 2px rgba(16,24,40,.04), 0 3px 10px rgba(16,24,40,.05);
+  transition: transform .2s ease, box-shadow .25s ease, border-color .2s ease;
+}
+.admin-card:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(16,24,40,.14); border-color: #cbd5e1; }
+.admin-card img { transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+.admin-card:hover img { transform: scale(1.04); }
+
+.btn-aprobar:hover, .btn-rechazar:hover, .btn-revertir:hover { transform: translateY(-1px); }
+.tab-btn { transition: background-color .2s ease, color .2s ease, transform .15s ease; }
+.tab-btn.activo { box-shadow: 0 -3px 12px rgba(0,0,0,.08); }
+
+/* Motivo de cancelación en tarjeta */
+.card-motivo {
+  font-size: 11px; color: #991b1b; background: #fef2f2;
+  border: 1px solid #fecaca; padding: 6px 9px; border-radius: 7px; margin-bottom: 8px;
+  line-height: 1.35;
+}

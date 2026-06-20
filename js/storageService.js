@@ -109,6 +109,14 @@ const StorageService = {
         apiPost("estado", { id, estado: nuevoEstado });
     },
 
+    // Cancelar/rechazar con un motivo que se guarda en la BD
+    cancelarConMotivo(id, motivo) {
+        this._estados[String(id)] = "rechazado";
+        const p = (window.productos || []).find(x => x.id == id);
+        if (p) { p.estado = "rechazado"; p.motivoCancelacion = motivo; }
+        apiPost("cancelar", { id, motivo });
+    },
+
     // ============================================================
     // BANEADOS
     // ============================================================

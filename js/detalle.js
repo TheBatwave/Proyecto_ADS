@@ -55,6 +55,12 @@ function init() {
       `<span>👤 Vista de administrador — previsualizando producto (estado: <strong>${estado}</strong>)</span>
        <button onclick="window.location.href='admin.html'">← Volver al panel</button>`;
     document.body.insertBefore(barra, document.body.firstChild);
+    // Ocultar los botones públicos del encabezado (ya hay sesión activa):
+    // dejamos un solo camino de regreso: "← Volver al panel"
+    const navLogin = document.querySelector('.det-nav a[href*="login"]');
+    if (navLogin) navLogin.style.display = "none";
+    const navVolver = document.querySelector('.det-nav button[onclick*="volverAtras"]');
+    if (navVolver) navVolver.style.display = "none";
   }
 
   // Si pasa la validación, construimos el Breadcrumb de forma normal
@@ -125,17 +131,23 @@ function renderizarProducto(p) {
   const estrellas = "⭐".repeat(Math.round(calif));
 
   // Sección de documento de propiedad (solo si el producto lo tiene)
+  const esAdminDoc = window.StorageService && StorageService.esAdmin && StorageService.esAdmin();
   const docSection = p.documentoPropiedad
     ? `<div class="det-seccion det-doc">
          <h3>📄 Documento de propiedad</h3>
          <div class="doc-card ${p.documentoVerificado ? "doc-ok" : "doc-pend"}">
-           <img src="${p.documentoPropiedad}" alt="Documento de propiedad" class="doc-img"
-                onclick="window.open('${p.documentoPropiedad}','_blank')">
+           <div class="doc-img-wrap ${esAdminDoc ? "" : "doc-bloqueado"}"
+                onclick="${esAdminDoc ? `window.open('${p.documentoPropiedad}','_blank')` : "pedirLoginDocumento()"}">
+             <img src="${p.documentoPropiedad}" alt="Documento de propiedad" class="doc-img">
+             ${esAdminDoc ? "" : '<span class="doc-candado">🔒</span>'}
+           </div>
            <div class="doc-info">
              <span class="doc-badge ${p.documentoVerificado ? "verificado" : "pendiente"}">
                ${p.documentoVerificado ? "✅ Documentación verificada por el administrador" : "⏳ Documentación en revisión"}
              </span>
-             <p class="doc-nota">Da clic en el documento para ampliarlo.</p>
+             <p class="doc-nota">${esAdminDoc
+                ? "Da clic en el documento para ampliarlo."
+                : "🔒 Inicia sesión para ver la documentación completa."}</p>
            </div>
          </div>
        </div>`
@@ -264,6 +276,18 @@ function moverLightbox(dir) {
 // ---- Modal login ----
 function abrirModal()  { document.getElementById("modalLogin").classList.add("activo"); }
 function cerrarModal() { document.getElementById("modalLogin").classList.remove("activo"); }
+
+// El visitante no puede abrir el documento: se le invita a iniciar sesión
+function pedirLoginDocumento() {
+  const box = document.querySelector("#modalLogin .modal-box");
+  if (box) {
+    const h = box.querySelector("h3");
+    const p = box.querySelector("p");
+    if (h) h.textContent = "🔒 Inicia sesión para ver la documentación";
+    if (p) p.textContent = "Para ver los documentos de propiedad necesitas iniciar sesión o registrarte como usuario.";
+  }
+  abrirModal();
+}
 
 // ---- Error ----
 function mostrarError(msg) {
